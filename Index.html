@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NETBOOST - Internet Speed Test</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <div class="logo">NET<span>BOOST</span></div>
+
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#test">Speed Test</a>
+      <a href="#history">History</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HOME -->
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <p class="tag">⚡ FAST • SIMPLE • ACCURATE</p>
+
+        <h1>Test Your<br><span>Internet Speed</span></h1>
+
+        <p class="description">
+          Check your download speed, upload speed and network latency
+          with NETBOOST.
+        </p>
+
+        <button class="main-btn" onclick="startTest()">
+          START SPEED TEST
+        </button>
+      </div>
+    </section>
+
+
+    <!-- SPEED TEST -->
+    <section class="test-section" id="test">
+
+      <div class="section-title">
+        <p>NETWORK PERFORMANCE</p>
+        <h2>Speed Test</h2>
+      </div>
+
+      <div class="speed-card">
+
+        <div class="speed-circle">
+          <div class="circle-inner">
+            <span id="speedValue">0</span>
+            <small>Mbps</small>
+          </div>
+        </div>
+
+        <p id="testStatus">Ready to test your connection</p>
+
+        <button class="test-btn" id="testButton" onclick="startTest()">
+          START TEST
+        </button>
+
+      </div>
+
+
+      <div class="stats">
+
+        <div class="stat-box">
+          <div class="stat-icon">↓</div>
+          <h3 id="download">--</h3>
+          <p>Download</p>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon">↑</div>
+          <h3 id="upload">--</h3>
+          <p>Upload</p>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-icon">◉</div>
+          <h3 id="ping">--</h3>
+          <p>Ping</p>
+        </div>
+
+      </div>
+
+      <div class="quality">
+        <span>Connection Quality</span>
+        <strong id="qualityText">Not Tested</strong>
+      </div>
+
+    </section>
+
+
+    <!-- HISTORY -->
+    <section class="history-section" id="history">
+
+      <div class="section-title">
+        <p>YOUR RESULTS</p>
+        <h2>Test History</h2>
+      </div>
+
+      <div id="historyList" class="history-list">
+        <p class="empty">No tests completed yet.</p>
+      </div>
+
+      <button class="clear-btn" onclick="clearHistory()">
+        CLEAR HISTORY
+      </button>
+
+    </section>
+
+
+    <!-- OPTIMIZER -->
+    <section class="optimizer">
+
+      <div class="section-title">
+        <p>NETWORK TIPS</p>
+        <h2>Boost Your Connection</h2>
+      </div>
+
+      <div class="tips">
+
+        <div class="tip">
+          <span>01</span>
+          <h3>Move closer to Wi-Fi</h3>
+          <p>
+            Keep your device closer to your router for a stronger signal.
+          </p>
+        </div>
+
+        <div class="tip">
+          <span>02</span>
+          <h3>Restart your router</h3>
+          <p>
+            Restarting your router can sometimes resolve temporary network
+            problems.
+          </p>
+        </div>
+
+        <div class="tip">
+          <span>03</span>
+          <h3>Reduce background usage</h3>
+          <p>
+            Close downloads and apps that are consuming your bandwidth.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer>
+    <div class="logo">NET<span>BOOST</span></div>
+    <p>Internet Speed Testing Tool</p>
+    <p>© 2026 NETBOOST</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
