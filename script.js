@@ -1,6 +1,10 @@
 let testing = false;
 
-function startTest() {
+// ===============================
+// NETBOOST SPEED TEST
+// ===============================
+
+async function startTest() {
 
   if (testing) return;
 
@@ -9,209 +13,119 @@ function startTest() {
   const button = document.getElementById("testButton");
   const status = document.getElementById("testStatus");
   const speedValue = document.getElementById("speedValue");
-  const circle = document.querySelector(".speed-circle");
+
+  const downloadEl = document.getElementById("download");
+  const uploadEl = document.getElementById("upload");
+  const pingEl = document.getElementById("ping");
+  const qualityEl = document.getElementById("qualityText");
 
   button.disabled = true;
   button.innerText = "TESTING...";
-
-  document.getElementById("download").innerText = "--";
-  document.getElementById("upload").innerText = "--";
-  document.getElementById("ping").innerText = "--";
-  document.getElementById("qualityText").innerText = "Testing";
-
-  let speed = 0;
-  let progress = 0;
-
   status.innerText = "Checking your connection...";
+  
+  speedValue.innerText = "0";
+  downloadEl.innerText = "--";
+  uploadEl.innerText = "--";
+  pingEl.innerText = "--";
+  qualityEl.innerText = "Testing...";
 
-  const interval = setInterval(() => {
+  try {
 
-    progress += Math.random() * 8 + 3;
+    // -------------------------------
+    // PING TEST
+    // -------------------------------
 
-    if (progress > 100) {
-      progress = 100;
-    }
+    status.innerText = "Testing latency...";
 
-    speed = Math.round(
-      20 +
-      Math.random() * 80 +
-      Math.sin(progress / 10) * 15
+    const pingStart = performance.now();
+
+    await fetch(
+      "https://speed.cloudflare.com/__down?bytes=1",
+      {
+        cache: "no-store",
+        mode: "cors"
+      }
     );
 
-    speedValue.innerText = speed;
+    const pingEnd = performance.now();
 
-    const degree = progress * 3.6;
+    const ping = Math.round(pingEnd - pingStart);
 
-    circle.style.background =
-      `conic-gradient(#00d9ff ${degree}deg, #15202a ${degree}deg)`;
-
-    if (progress < 35) {
-      status.innerText = "Testing download speed...";
-    }
-    else if (progress < 70) {
-      status.innerText = "Testing upload speed...";
-    }
-    else {
-      status.innerText = "Checking latency...";
-    }
-
-    if (progress >= 100) {
-
-      clearInterval(interval);
-
-      finishTest(speed);
-    }
-
-  }, 100);
-
-}
+    pingEl.innerText = ping + " ms";
 
 
-function finishTest(downloadSpeed) {
+    // -------------------------------
+    // DOWNLOAD TEST
+    // -------------------------------
 
-  const uploadSpeed = Math.max(
-    5,
-    Math.round(downloadSpeed * (0.25 + Math.random() * 0.25))
-  );
+    status.innerText = "Testing download speed...";
 
-  const ping = Math.round(
-    10 + Math.random() * 60
-  );
+    const testSize = 5000000; // 5 MB
 
-  document.getElementById("download").innerText =
-    downloadSpeed + " Mbps";
+    const startTime = performance.now();
 
-  document.getElementById("upload").innerText =
-    uploadSpeed + " Mbps";
+    const response = await fetch(
+      "https://speed.cloudflare.com/__down?bytes=" + testSize,
+      {
+        cache: "no-store",
+        mode: "cors"
+      }
+    );
 
-  document.getElementById("ping").innerText =
-    ping + " ms";
+    const data = await response.arrayBuffer();
 
-  let quality = "";
+    const endTime = performance.now();
 
-  if (downloadSpeed >= 100 && ping < 30) {
-    quality = "Excellent";
-  }
-  else if (downloadSpeed >= 50 && ping < 60) {
-    quality = "Good";
-  }
-  else if (downloadSpeed >= 20) {
-    quality = "Average";
-  }
-  else {
-    quality = "Slow";
-  }
+    const seconds = (endTime - startTime) / 1000;
 
-  document.getElementById("qualityText").innerText =
-    quality;
+    const bytes = data.byteLength;
 
-  document.getElementById("testStatus").innerText =
-    "Test completed successfully";
+    const bits = bytes * 8;
 
-  const button = document.getElementById("testButton");
+    const mbps = bits / seconds / 1000000;
 
-  button.disabled = false;
-  button.innerText = "TEST AGAIN";
+    const downloadSpeed = Math.max(
+      0.1,
+      Math.round(mbps * 10) / 10
+    );
 
-  testing = false;
+    downloadEl.innerText = downloadSpeed + " Mbps";
 
-  saveHistory(
-    downloadSpeed,
-    uploadSpeed,
-    ping,
-    quality
-  );
-}
+    speedValue.innerText = downloadSpeed;
 
 
-function saveHistory(download, upload, ping, quality) {
+    // -------------------------------
+    // UPLOAD
+    // -------------------------------
 
-  const history =
-    JSON.parse(localStorage.getItem("netboostHistory")) || [];
+    status.innerText = "Testing upload speed...";
 
-  const result = {
-    download: download,
-    upload: upload,
-    ping: ping,
-    quality: quality,
-    date: new Date().toLocaleString()
-  };
+    const uploadSize = 1000000; // 1 MB
 
-  history.unshift(result);
+    const uploadData = new Uint8Array(uploadSize);
 
-  if (history.length > 10) {
-    history.pop();
-  }
+    const uploadStart = performance.now();
 
-  localStorage.setItem(
-    "netboostHistory",
-    JSON.stringify(history)
-  );
+    await fetch(
+      "https://speed.cloudflare.com/__up",
+      {
+        method: "POST",
+        body: uploadData,
+        cache: "no-store",
+        mode: "cors"
+      }
+    );
 
-  displayHistory();
-}
+    const uploadEnd = performance.now();
 
+    const uploadSeconds =
+      (uploadEnd - uploadStart) / 1000;
 
-function displayHistory() {
+    const uploadMbps =
+      (uploadSize * 8) /
+      uploadSeconds /
+      1000000;
 
-  const historyList =
-    document.getElementById("historyList");
-
-  const history =
-    JSON.parse(localStorage.getItem("netboostHistory")) || [];
-
-  if (history.length === 0) {
-
-    historyList.innerHTML =
-      '<p class="empty">No tests completed yet.</p>';
-
-    return;
-  }
-
-  historyList.innerHTML = "";
-
-  history.forEach(item => {
-
-    const div = document.createElement("div");
-
-    div.className = "history-item";
-
-    div.innerHTML = `
-      <div>
-        <small>Download</small>
-        <strong>${item.download} Mbps</strong>
-      </div>
-
-      <div>
-        <small>Upload</small>
-        <strong>${item.upload} Mbps</strong>
-      </div>
-
-      <div>
-        <small>Ping</small>
-        <strong>${item.ping} ms</strong>
-      </div>
-
-      <div>
-        <small>Quality</small>
-        <strong>${item.quality}</strong>
-      </div>
-
-      <small>${item.date}</small>
-    `;
-
-    historyList.appendChild(div);
-
-  });
-}
-
-
-function clearHistory() {
-
-  localStorage.removeItem("netboostHistory");
-
-  displayHistory();
-}
-
-
-displayHistory();
+    const uploadSpeed = Math.max(
+      0.1,
+      Math.round(uploadMbps
